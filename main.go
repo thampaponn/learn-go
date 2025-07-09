@@ -3,23 +3,23 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/thampaponn/learn-go/controller"
+	"github.com/thampaponn/learn-go/database"
 	"github.com/thampaponn/learn-go/service"
 )
 
-var (
-	videoService    service.VideoService       = service.New()
-	videoController controller.VideoController = controller.New(videoService)
-)
-
 func main() {
+	database.InitDB()
 	server := gin.Default()
 
-	server.GET("/videos", func(ctx *gin.Context) {
-		ctx.JSON(200, videoController.FindAll())
+	userService := service.New()
+	userController := controller.New(userService)
+
+	server.GET("/users", func(ctx *gin.Context) {
+		ctx.JSON(200, userController.FindAll())
 	})
 
-	server.POST("/videos", func(ctx *gin.Context) {
-		ctx.JSON(201, videoController.Save(ctx))
+	server.POST("/users", func(ctx *gin.Context) {
+		ctx.JSON(201, userController.Save(ctx))
 	})
 
 	server.Run(":8080")
