@@ -1,26 +1,32 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/thampaponn/learn-go/controller"
-	"github.com/thampaponn/learn-go/database"
-	"github.com/thampaponn/learn-go/service"
+	"github.com/thampaponn/learn-go/initializers"
+	"github.com/thampaponn/learn-go/middleware"
 )
 
+func init() {
+	initializers.LoadEnv()
+	initializers.InitDB()
+	initializers.SyncDB()
+}
+
 func main() {
-	database.InitDB()
-	server := gin.Default()
+	app := gin.Default()
 
-	userService := service.New()
-	userController := controller.New(userService)
-
-	server.GET("/users", func(ctx *gin.Context) {
-		ctx.JSON(200, userController.FindAll())
+	app.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, "It's running")
 	})
 
-	server.POST("/users", func(ctx *gin.Context) {
-		ctx.JSON(201, userController.Save(ctx))
-	})
+	//User
+	app.POST("/signup", controller.SignUp)
+	app.POST("/login", controller.Login)
+	app.GET("/validate", middleware.RequireAuth, controller.Validate)
+	app.DELETE("/users/:id", controller.DeleteUser)
 
-	server.Run(":8080")
+	app.Run()
 }
