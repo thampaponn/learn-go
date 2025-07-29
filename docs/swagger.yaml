@@ -1,5 +1,11 @@
 basePath: /api/v1
 definitions:
+  dto.ErrorResponse:
+    properties:
+      error:
+        example: Invalid input
+        type: string
+    type: object
   dto.LoginInput:
     properties:
       password:
@@ -18,7 +24,22 @@ definitions:
         example: Doe
         type: string
       password:
-        example: securepassword123
+        example: password123
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      first_name:
+        example: John
+        type: string
+      id:
+        example: 1
+        type: integer
+      last_name:
+        example: Doe
         type: string
       username:
         example: johndoe
@@ -42,8 +63,41 @@ paths:
         type: integer
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Delete a user
+      tags:
+      - users
+  /users/find-many:
+    get:
+      description: Retrieve list of users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get users
       tags:
       - users
   /users/login:
@@ -60,7 +114,21 @@ paths:
           $ref: '#/definitions/dto.LoginInput'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Authenticate a user
       tags:
       - users
@@ -78,7 +146,17 @@ paths:
           $ref: '#/definitions/dto.SignUpInput'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Register a new user
       tags:
       - users
@@ -87,7 +165,16 @@ paths:
       description: Returns the logged-in user's information if the session is valid
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Validate current session
       tags:
       - users

@@ -40,6 +40,7 @@ func main() {
 		user.GET("/validate", middleware.RequireAuth, controller.Validate) // This will validate the user session
 		user.POST("/signup", controller.SignUp)                            // This will create a new user
 		user.POST("/login", controller.Login)                              // This will log in the user
+		user.GET("/find-many", middleware.RequireAuth, controller.GetUser) // This will get the user with the given ID
 		user.DELETE("/:id", middleware.RequireAuth, controller.DeleteUser) // This will delete the user with the given ID
 	}
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/thampaponn/learn-go/dto"
 	"github.com/thampaponn/learn-go/initializers"
 	"github.com/thampaponn/learn-go/models"
 	"golang.org/x/crypto/bcrypt"
@@ -24,12 +25,7 @@ import (
 // @Router /users/signup [post]
 func SignUp(ctx *gin.Context) {
 	//Get username/password from req body
-	var body struct {
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
-		Username  string `json:"username"`
-		Password  string `json:"password"`
-	}
+	var body dto.SignUpInput
 
 	if ctx.Bind(&body) != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read body"})
@@ -119,6 +115,36 @@ func Login(ctx *gin.Context) {
 	ctx.SetSameSite(http.SameSiteLaxMode)
 	ctx.SetCookie("Authorization", tokenString, 3600, "", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{"access_token": tokenString, "message": "Login successful"})
+}
+
+// GetUser godoc
+// @Summary Get users
+// @Description Retrieve list of users
+// @Tags users
+// @Produce json
+// @Success 200 {array} dto.UserResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Router /users/find-many [get]
+func GetUser(ctx *gin.Context) {
+	var users []models.User
+	result := initializers.DB.Find(&users)
+
+	if result.Error != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "Failed to fetch users"})
+		return
+	}
+
+	var userResponses []dto.UserResponse
+	for _, u := range users {
+		userResponses = append(userResponses, dto.UserResponse{
+			ID:        u.ID,
+			FirstName: u.FirstName,
+			LastName:  u.LastName,
+			Username:  u.Username,
+		})
+	}
+
+	ctx.JSON(http.StatusOK, userResponses)
 }
 
 // Validate godoc
